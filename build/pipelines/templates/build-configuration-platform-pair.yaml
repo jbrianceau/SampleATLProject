@@ -1,0 +1,32 @@
+parameters:
+- name: vmImageType
+  type: string
+
+- name: configuration
+  type: string
+
+- name: platform
+  type: string
+
+jobs:
+- job: Build_${{ parameters.platform }}_${{ parameters.configuration }}_${{ parameters.vmImageType }}
+  displayName: Build ${{ parameters.platform }} / ${{ parameters.configuration }} on ${{ parameters.vmImageType }}
+  pool:
+    ${{ if eq(parameters.vmImageType, 'vs2017') }}:
+      vmImage: vs2017-win2016
+    ${{ if eq(parameters.vmImageType, 'vs2019') }}:
+      vmImage: windows-2019
+  steps:
+  - checkout: self
+    clean: true
+
+  - task: VSBuild@1
+    displayName: Build solution SampleATLProject.sln (${{ parameters.platform }} / ${{ parameters.configuration }} on ${{ parameters.vmImageType }})
+    inputs:
+      solution: SampleATLProject.sln
+      msbuildArgs: /verbosity:normal
+      platform: ${{ parameters.platform }}
+      configuration: ${{ parameters.configuration }}
+      clean: true
+      maximumCpuCount: true
+      msbuildArchitecture: x64

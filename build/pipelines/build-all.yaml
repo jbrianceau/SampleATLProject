@@ -1,0 +1,35 @@
+trigger: none
+pr: none
+
+parameters:
+- name: vmImageTypeList
+  type: object
+  default:
+  - vs2017
+  - vs2019
+
+- name: platformList
+  type: object
+  default:
+  - arm
+  - arm64
+  - x86
+  - x64
+
+- name: configurationList
+  type: object
+  default:
+  - debug
+  - release
+
+stages:
+- stage: BuildStage
+  jobs:
+  - ${{ each vmImageType in parameters.vmImageTypeList }}:
+    - ${{ each configuration in parameters.configurationList }}:
+      - ${{ each platform in parameters.platformList }}:
+        - template: ./templates/build-configuration-platform-pair.yaml
+          parameters:
+            vmImageType: ${{ vmImageType }}
+            configuration: ${{ configuration }}
+            platform: ${{ platform }}
